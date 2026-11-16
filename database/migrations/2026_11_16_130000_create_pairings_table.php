@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('pairings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('tournament_id')->constrained('tournaments')->cascadeOnDelete();
+            $table->unsignedSmallInteger('round_number');
+            $table->unsignedSmallInteger('board_number');
+            $table->foreignId('white_player_id')->constrained('players')->restrictOnDelete();
+            $table->foreignId('black_player_id')->nullable()->constrained('players')->restrictOnDelete();
+            $table->string('result')->default('*');
+            $table->foreignId('advanced_player_id')->nullable()->constrained('players')->restrictOnDelete();
+            $table->unsignedInteger('version')->default(1);
+            $table->timestamps();
+
+            $table->unique(['tournament_id', 'round_number', 'board_number']);
+            $table->index(['tournament_id', 'round_number']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('pairings');
+    }
+};

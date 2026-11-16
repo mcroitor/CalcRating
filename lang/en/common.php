@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'save' => 'Save',
+    'cancel' => 'Cancel',
+    'edit' => 'Edit',
+    'delete' => 'Delete',
+    'search' => 'Search',
+    'reset' => 'Reset',
+    'apply' => 'Apply',
+    'add' => 'Add',
+    'back' => 'Back',
+    'actions' => 'Actions',
+    'status' => 'Status',
+    'role' => 'Role',
+    'email' => 'Email',
+    'name' => 'Name',
+    'surname' => 'Surname',
+    'notes' => 'Notes',
+    'date' => 'Date',
+    'version' => 'Record version',
+    'empty' => 'No records found.',
+    'all' => 'All',
+    'not_available' => '—',
+    'years_old' => ':age year|:age years',
+    'confirm' => 'Are you sure?',
+];
