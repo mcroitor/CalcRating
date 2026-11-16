@@ -1,0 +1,103 @@
+services:
+  app:
+    build:
+      context: .
+      target: app
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_NAME: ${APP_NAME:-CalcRating}
+      APP_ENV: ${APP_ENV:-production}
+      APP_KEY: ${APP_KEY:-}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/html/database/sqlite/database.sqlite
+      SESSION_DRIVER: ${SESSION_DRIVER:-database}
+      CACHE_STORE: ${CACHE_STORE:-database}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-sync}
+      LOG_CHANNEL: ${LOG_CHANNEL:-daily}
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-*}
+      BACKUP_PATH: /var/www/html/backups
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+    volumes:
+      - sqlite_data:/var/www/html/database/sqlite
+      - storage_data:/var/www/html/storage
+      - backups_data:/var/www/html/backups
+    healthcheck:
+      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\", 9000) ? 0 : 1);'"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - calcrating
+
+  web:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - storage_data:/var/www/html/storage:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/up >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - calcrating
+
+  scheduler:
+    build:
+      context: .
+      target: app
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      APP_NAME: ${APP_NAME:-CalcRating}
+      APP_ENV: ${APP_ENV:-production}
+      APP_KEY: ${APP_KEY:-}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/html/database/sqlite/database.sqlite
+      SESSION_DRIVER: ${SESSION_DRIVER:-database}
+      CACHE_STORE: ${CACHE_STORE:-database}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-sync}
+      LOG_CHANNEL: ${LOG_CHANNEL:-daily}
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+      BACKUP_PATH: /var/www/html/backups
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      AUTO_MIGRATE: "false"
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      app:
+        condition: service_healthy
+    volumes:
+      - sqlite_data:/var/www/html/database/sqlite
+      - storage_data:/var/www/html/storage
+      - backups_data:/var/www/html/backups
+    networks:
+      - calcrating
+
+volumes:
+  sqlite_data:
+  storage_data:
+  backups_data:
+
+networks:
+  calcrating:
+    driver: bridge

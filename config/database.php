@@ -7,9 +7,9 @@ use Pdo\Mysql;
 | PHP 8.4 deprecated PDO::MYSQL_ATTR_SSL_CA in favour of Pdo\Mysql::ATTR_SSL_CA.
 | Resolve the attribute id once so the config stays valid on PHP 8.2/8.3 too.
 */
-$mysqlSslCaAttribute = class_exists(Mysql::class)
-    ? Mysql::ATTR_SSL_CA
-    : PDO::MYSQL_ATTR_SSL_CA;
+$mysqlSslCaAttribute = extension_loaded('pdo_mysql')
+    ? (class_exists(Mysql::class) ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)
+    : null;
 
 return [
 

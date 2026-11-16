@@ -5,8 +5,9 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ url('/') }}" class="text-xl font-bold text-indigo-600">
-                        ♟ CalcRating
+                    <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5 text-xl font-bold text-indigo-600">
+                        <x-application-logo class="h-8 w-8 shrink-0" />
+                        <span>CalcRating</span>
                     </a>
                 </div>
 
